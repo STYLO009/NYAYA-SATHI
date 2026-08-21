@@ -1,0 +1,63 @@
+# =========================
+# LangChain Core
+# =========================
+langchain
+langchain-core
+langchain-community
+langchain-text-splitters
+
+# =========================
+# Hugging Face
+# =========================
+langchain-huggingface
+huggingface-hub
+transformers
+sentence-transformers
+
+# =========================
+# Vector Database
+# =========================
+faiss-cpu
+
+# =========================
+# Ollama
+# =========================
+langchain-ollama
+ollama
+
+# =========================
+# Environment Variables
+# =========================
+python-dotenv
+
+# =========================
+# Document Loaders
+# =========================
+pypdf
+docx2txt
+python-docx
+beautifulsoup4
+unstructured
+
+# =========================
+# Web / HTTP
+# =========================
+requests
+httpx
+
+# =========================
+# Data Processing
+# =========================
+numpy
+pandas
+
+# =========================
+# API / Web App (Optional)
+# =========================
+flask
+flask-cors
+
+# =========================
+# Jupyter / Development
+# =========================
+ipykernel
