@@ -26,10 +26,6 @@ while True:
 
     question = input("\n👤 Ask your legal question: ")
 
-    if question.lower().strip() in ["exit", "quit", "bye"]:
-        print("\n⚖️ Nyaya Saathi: Goodbye!")
-        break
-
     if not question.strip():
         print("Please enter a question.")
         continue
