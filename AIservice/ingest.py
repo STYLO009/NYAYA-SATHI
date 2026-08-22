@@ -34,6 +34,6 @@ vectorstore = FAISS.from_documents(
     embedding
 )
 
-vectorstore.save_local("vectorstore")
+vectorstore.save_local(r"C:\NYAYA-SATHI\AIservice\vectorstore")
 
 print("Vectors are being created!!!!")
