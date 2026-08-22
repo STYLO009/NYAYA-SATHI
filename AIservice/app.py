@@ -1,183 +1,178 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEmbeddings,ChatHuggingFace,HuggingFaceEndpoint
+from langchain_community.vectorstores import FAISS
+from langchain_ollama import ChatOllama
 
+app = FastAPI(title="Nyaya Saathi API")
 
-# =====================================================
-# FLASK APP
-# =====================================================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
-app = Flask(__name__)
-CORS(app)
+embeddings = HuggingFaceEmbeddings(
+    model_name="BAAI/bge-base-en-v1.5"
+)
 
+vectorstore = FAISS.load_local(
+    "vectorstore",
+    embeddings,
+    allow_dangerous_deserialization=True
+)
 
-# =====================================================
-# SYSTEM PROMPT
-# =====================================================
-
-SYSTEM_PROMPT = """
-You are Nyaya Saathi, an AI Legal Assistant specialized in Indian law.
-
-LANGUAGE RULES:
-
-1. You understand English, Hindi, and Bengali.
-2. Detect the language of the user's CURRENT message.
-3. Reply ONLY in the same language as the current message.
-4. If the user asks in English, reply in English.
-5. If the user asks in Hindi, reply in Hindi.
-6. If the user asks in Bengali, reply in Bengali.
-7. Never mix Hindi, Bengali, and English unnecessarily.
-8. Ignore the language used in previous messages.
-9. Always detect the language of the CURRENT message.
-
-LEGAL RULES:
-
-1. Answer ONLY questions related to Indian law and legal matters.
-2. Never answer non-legal questions.
-3. Explain legal concepts in simple language.
-4. Be helpful and empathetic.
-5. Do not claim to be a lawyer.
-6. Do not guarantee legal outcomes.
-7. Never invent or hallucinate legal sections.
-8. If you are unsure about a law or section number, clearly say that it should be verified by a legal professional.
-
-FOR LEGAL SITUATIONS:
-
-- Explain the legal issue.
-- Explain possible legal rights.
-- Suggest practical legal actions.
-- Explain FIR procedures when relevant.
-- Mention BNS sections when reasonably confident.
-- Mention IPC sections only when historically relevant.
-- Mention constitutional provisions when relevant.
-- Mention cyber, consumer, labour, property or other applicable laws when relevant.
-
-RESPONSE FORMAT:
-
-⚖️ Legal Perspective
-Explain the legal issue simply.
-
-📜 Relevant Laws
-Mention the applicable Indian laws and sections.
-
-📝 What You Can Do
-Provide practical legal steps.
-
-⚠️ Important Note
-Provide an appropriate legal disclaimer.
-
-NON-LEGAL QUESTIONS:
-
-If the question is not related to Indian law, reply ONLY in the user's language:
-
-English:
-"I am Nyaya Saathi and can only assist with legal matters."
-
-Hindi:
-"मैं Nyaya Saathi हूँ और केवल कानूनी मामलों में सहायता कर सकता हूँ।"
-
-Bengali:
-"আমি Nyaya Saathi এবং শুধুমাত্র আইনি বিষয় নিয়ে সাহায্য করতে পারি।"
-"""
-
-
-# =====================================================
-# PROMPT TEMPLATE
-# =====================================================
-
-prompt = ChatPromptTemplate.from_messages([
-    ("system", SYSTEM_PROMPT),
-    ("human", "{question}")
-])
-
-
-# =====================================================
-# HUGGING FACE MODEL
-# =====================================================
+retriever = vectorstore.as_retriever(
+    search_kwargs={"k": 3}
+)
 
 llm = HuggingFaceEndpoint(
     model="google/gemma-4-31B-it",
-    task="text-generation",
     max_new_tokens=512,
-    temperature=0.6
+    temperature=0.6,
+    task='text-generation'
 )
 
 model = ChatHuggingFace(llm=llm)
+class ChatRequest(BaseModel):
+    message: str
 
-
-# =====================================================
-# LANGCHAIN CHAIN
-# =====================================================
-
-parser = StrOutputParser()
-
-chain = prompt | model | parser
-
-
-# =====================================================
-# HOME ROUTE
-# =====================================================
-
-@app.route("/")
+@app.get("/")
 def home():
-    return "Nyaya Saathi AI Running"
+    return {
+        "message": "Nyaya Saathi API is running"
+    }
 
+@app.post("/chat")
+def chat(request: ChatRequest):
 
-# =====================================================
-# CHAT API
-# =====================================================
+    question = request.message
 
-@app.route("/chat", methods=["POST"])
-def chat():
+    documents = retriever.invoke(question)
 
-    try:
-
-        # Get JSON
-        data = request.get_json()
-
-        if not data:
-            return jsonify({
-                "error": "No JSON received"
-            }), 400
-
-        # Get user message
-        user_input = data.get("message")
-
-        if not user_input:
-            return jsonify({
-                "error": "Message is required"
-            }), 400
-
-        # Send message to LangChain
-        response = chain.invoke({
-            "question": user_input
-        })
-
-        # Return response
-        return jsonify({
-            "message": user_input,
-            "response": response
-        })
-
-    except Exception as e:
-
-        print("ERROR:", e)
-
-        return jsonify({
-            "error": str(e)
-        }), 500
-
-
-# =====================================================
-# RUN SERVER
-# =====================================================
-
-if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=5000,
-        debug=True
+    context = "\n\n".join(
+        doc.page_content
+        for doc in documents
     )
+
+    prompt = f"""
+    You are Nyaya Saathi, an AI Legal Assistant specialized in Indian law.
+    
+    LANGUAGE RULES:
+    
+    - You understand Hindi, English, and Bengali.
+    - Detect the language of the user's CURRENT message.
+    - Reply ONLY in the same language as the user's CURRENT message.
+    - If the user asks in Hindi, answer in Hindi.
+    - If the user asks in English, answer in English.
+    - If the user asks in Bengali, answer in Bengali.
+    - Do not unnecessarily mix Hindi, Bengali, and English.
+    - Ignore the language used in previous messages.
+    - Always detect the language of the current message.
+    
+    LEGAL RULES:
+    
+    - Answer ONLY questions related to Indian law.
+    - Do not answer general non-legal questions.
+    - Use the provided legal context whenever relevant.
+    - Explain the law in simple language.
+    - Give practical and lawful guidance.
+    - Never invent legal sections.
+    - Never invent facts that are not present in the context.
+    - If the retrieved documents do not contain enough information, clearly say that the information could not be verified from the available legal documents.
+    - Do not claim to be a lawyer.
+    - Do not guarantee legal outcomes.
+    
+    INDIAN CRIMINAL LAW:
+    
+    - For offences occurring on or after 1 July 2024, prefer the Bharatiya Nyaya Sanhita (BNS), 2023.
+    - Mention the relevant BNS section when supported by the legal context.
+    - Mention IPC sections when the incident relates to the period when IPC was applicable or when comparison between IPC and BNS is useful.
+    - Clearly distinguish between IPC and BNS.
+    - Never present an old IPC section as the current criminal-law provision when BNS applies.
+    - Never guess a BNS or IPC section.
+    
+    OTHER LAWS:
+    
+    When relevant, consider:
+    
+    - Constitution of India
+    - Bharatiya Nagarik Suraksha Sanhita (BNSS)
+    - Bharatiya Sakshya Adhiniyam (BSA)
+    - Information Technology Act
+    - Consumer Protection Act
+    - Protection of Women from Domestic Violence Act
+    - Labour laws
+    - Property laws
+    - Contract laws
+    - Other applicable Indian laws
+    
+    LEGAL SITUATION:
+    
+    If the user describes a real-life legal situation:
+    
+    1. Identify the legal issue.
+    2. Explain possible legal rights.
+    3. Mention relevant BNS sections if supported.
+    4. Mention IPC sections if historically applicable.
+    5. Explain FIR/complaint procedures when relevant.
+    6. Give practical legal steps.
+    7. Explain when professional legal assistance may be required.
+    
+    RESPONSE FORMAT:
+    
+    ⚖️ Legal Perspective
+    
+    Explain the legal issue simply.
+    
+    📜 Relevant Laws
+    
+    Mention:
+    - BNS sections, when applicable.
+    - IPC sections, when historically applicable.
+    - Other relevant laws.
+    - Constitutional provisions when applicable.
+    
+    📝 What You Can Do
+    
+    Give practical and lawful steps.
+    
+    ⚠️ Important Note
+    
+    Provide an appropriate legal disclaimer.
+    
+    NON-LEGAL QUESTIONS:
+    
+    If the question is NOT related to law, reply ONLY in the user's current language.
+    
+    English:
+    "I am Nyaya Saathi and can only assist with legal matters."
+    
+    Hindi:
+    "मैं Nyaya Saathi हूँ और केवल कानूनी मामलों में सहायता कर सकता हूँ।"
+    
+    Bengali:
+    "আমি Nyaya Saathi এবং শুধুমাত্র আইনি বিষয় নিয়ে সাহায্য করতে পারি।"
+    
+    LEGAL DOCUMENTS:
+    
+    {context}
+    
+    USER QUESTION:
+    
+    {question}
+    
+    Answer the user's question using the legal documents provided above.
+    Do not mention the vector database or RAG.
+    """
+
+    response = model.invoke(prompt)
+
+    return {
+        "question": question,
+        "response": response.content
+    }
