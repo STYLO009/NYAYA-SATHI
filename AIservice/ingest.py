@@ -4,7 +4,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from pathlib import Path
 
-document_folder = Path(r"C:\NYAYA-SATHI\AIservice\documents")
+document_folder = Path(r"AIservice/documents")
 
 documents = []
 
@@ -34,6 +34,6 @@ vectorstore = FAISS.from_documents(
     embedding
 )
 
-vectorstore.save_local(r"C:\NYAYA-SATHI\AIservice\vectorstore")
+vectorstore.save_local(r"AIservice/vectorstore")
 
 print("Vectors are being created!!!!")
