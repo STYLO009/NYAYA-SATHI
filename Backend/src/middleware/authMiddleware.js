@@ -1,7 +1,3 @@
-// ======================================
-// IMPORT JWT
-// ======================================
-
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
 
@@ -14,13 +10,6 @@ const User = require("../models/User.model");
 exports.isLoggedIn = async (req, res, next) => {
   try {
     let token;
-
-    // ======================================
-    // TOKEN FROM AUTH HEADER
-    // ======================================
-
-    // Example:
-    // Authorization: Bearer TOKEN
 
     if (req.headers.authorization) {
       token = req.headers.authorization.split(" ")[1];
@@ -55,7 +44,7 @@ exports.isLoggedIn = async (req, res, next) => {
     // LOAD THE FULL USER PROFILE
     // ======================================
 
-    const user = await User.findById(decoded.id).select("name email googleId");
+    const user = await User.findById(decoded.id).select("name email googleId phoneNumber");
 
     if (!user) {
       return res.status(401).json({
@@ -70,6 +59,7 @@ exports.isLoggedIn = async (req, res, next) => {
       name: user.name,
       email: user.email,
       googleId: user.googleId,
+      phoneNumber: user.phoneNumber,
     };
 
     // ======================================

@@ -2,11 +2,13 @@ export const getToken = (): string | null => localStorage.getItem('nyaya_token')
 export const setToken = (t: string): void => localStorage.setItem('nyaya_token', t);
 export const clearToken = (): void => localStorage.removeItem('nyaya_token');
 
-export const getUser = (): { name: string; email: string } | null => {
+export type StoredUser = { name: string; email: string; phoneNumber?: string };
+
+export const getUser = (): StoredUser | null => {
   const raw = localStorage.getItem('nyaya_user');
   return raw ? JSON.parse(raw) : null;
 };
-export const setUser = (u: { name: string; email: string }): void =>
+export const setUser = (u: StoredUser): void =>
   localStorage.setItem('nyaya_user', JSON.stringify(u));
 export const clearUser = (): void => localStorage.removeItem('nyaya_user');
 

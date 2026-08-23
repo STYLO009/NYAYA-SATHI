@@ -44,6 +44,7 @@ passport.use(
 
             googleId: profile.id,
           });
+          console.log("New user created:", user);
         }
 
         // ======================================

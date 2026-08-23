@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { apiFetch, getToken, setToken, clearToken, getUser, setUser, clearUser } from "../../lib/api";
+import { apiFetch, getToken, setToken, clearToken, getUser, setUser, clearUser, type StoredUser } from "../../lib/api";
 import { authUrls, dashboardCopy } from "../content/siteContent";
 
 const sidebarItems = [
@@ -890,7 +890,7 @@ function MyDocumentsSection() {
 }
 
 // ── Settings Section ──────────────────────────────────────────────────────────
-function SettingsSection({ user }: { user: { name: string; email: string } | null }) {
+function SettingsSection({ user, onUserUpdated }: { user: StoredUser | null; onUserUpdated: (user: StoredUser) => void }) {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -898,6 +898,40 @@ function SettingsSection({ user }: { user: { name: string; email: string } | nul
   const [newPwd, setNewPwd] = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");
   const [pwdSaved, setPwdSaved] = useState(false);
+  const [name, setName] = useState(user?.name ?? "");
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber ?? "");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMessage, setProfileMessage] = useState("");
+
+  const handleProfileSave = async () => {
+    if (!name.trim() || !phoneNumber.trim()) return;
+
+    setProfileSaving(true);
+    setProfileMessage("");
+
+    try {
+      await apiFetch("/auth/update-profile", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: name.trim(),
+          phoneNumber: phoneNumber.trim(),
+        }),
+      });
+
+      const updatedUser = {
+        name: name.trim(),
+        email: user?.email ?? "",
+        phoneNumber: phoneNumber.trim(),
+      };
+      setUser(updatedUser);
+      onUserUpdated(updatedUser);
+      setProfileMessage("Profile updated successfully");
+    } catch (error: any) {
+      setProfileMessage(error.message || "Unable to update profile");
+    } finally {
+      setProfileSaving(false);
+    }
+  };
 
   const handleSave = () => {
     if (newPwd && newPwd === confirmPwd) {
@@ -928,79 +962,25 @@ function SettingsSection({ user }: { user: { name: string; email: string } | nul
             </div>
           </div>
           <div className="space-y-3">
-            {[
-              { label: "Full Name", val: user?.name ?? "" },
-              { label: "Email Address", val: user?.email ?? "" },
-              { label: "Phone Number", val: "+91 98765 43210" },
-            ].map((f, i) => (
-              <div key={i}>
-                <label className="block text-xs text-[#6B7280] mb-1" style={{ fontWeight: 600 }}>{f.label.toUpperCase()}</label>
-                <input defaultValue={f.val} className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm text-[#0F172A] focus:outline-none focus:border-[#0F172A] transition-colors" />
+            <>
+              <div>
+                <label className="block text-xs text-[#6B7280] mb-1" style={{ fontWeight: 600 }}>FULL NAME</label>
+                <input value={name} onChange={(event) => setName(event.target.value)} className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm text-[#0F172A] focus:outline-none focus:border-[#0F172A] transition-colors" />
               </div>
-            ))}
-          </div>
-          <button className="mt-4 px-5 py-2.5 bg-[#0F172A] text-white rounded-xl text-sm hover:bg-[#1E3A5F] transition-colors" style={{ fontWeight: 600 }}>Save Changes</button>
-        </div>
-
-        {/* Change Password */}
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6" style={{ boxShadow: "0 4px 16px rgba(15,23,42,0.07)" }}>
-          <div className="flex items-center gap-2 mb-4">
-            <Lock className="w-4 h-4 text-[#0F172A]" />
-            <p className="text-sm text-[#0F172A]" style={{ fontWeight: 700 }}>Change Password</p>
-          </div>
-
-          {pwdSaved && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 mb-4 p-3 bg-green-50 border border-green-200 rounded-xl"
-            >
-              <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-              <p className="text-xs text-green-700" style={{ fontWeight: 500 }}>Password updated successfully!</p>
-            </motion.div>
-          )}
-
-          <div className="space-y-3">
-            {[
-              { label: "Current Password", val: oldPwd, set: setOldPwd, show: showOld, toggle: () => setShowOld(!showOld) },
-              { label: "New Password", val: newPwd, set: setNewPwd, show: showNew, toggle: () => setShowNew(!showNew) },
-              { label: "Confirm New Password", val: confirmPwd, set: setConfirmPwd, show: showConfirm, toggle: () => setShowConfirm(!showConfirm) },
-            ].map((f, i) => (
-              <div key={i}>
-                <label className="block text-xs text-[#6B7280] mb-1" style={{ fontWeight: 600 }}>{f.label.toUpperCase()}</label>
-                <div className="relative">
-                  <input
-                    type={f.show ? "text" : "password"}
-                    value={f.val}
-                    onChange={e => f.set(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2.5 pr-10 border border-[#E5E7EB] rounded-xl text-sm text-[#0F172A] focus:outline-none focus:border-[#0F172A] transition-colors"
-                  />
-                  <button
-                    onClick={f.toggle}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#0F172A] transition-colors"
-                  >
-                    {f.show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+              <div>
+                <label className="block text-xs text-[#6B7280] mb-1" style={{ fontWeight: 600 }}>EMAIL ADDRESS</label>
+                <input value={user?.email ?? ""} disabled className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm text-[#0F172A] bg-[#F8FAFC]" />
               </div>
-            ))}
+              <div>
+                <label className="block text-xs text-[#6B7280] mb-1" style={{ fontWeight: 600 }}>PHONE NUMBER</label>
+                <input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} placeholder="+91 98765 43210" className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm text-[#0F172A] focus:outline-none focus:border-[#0F172A] transition-colors" />
+              </div>
+            </>
           </div>
-
-          {newPwd && confirmPwd && newPwd !== confirmPwd && (
-            <p className="text-xs text-red-500 mt-2" style={{ fontWeight: 500 }}>Passwords do not match</p>
-          )}
-
-          <button
-            onClick={handleSave}
-            disabled={!oldPwd || !newPwd || newPwd !== confirmPwd}
-            className="mt-4 px-5 py-2.5 bg-[#0F172A] text-white rounded-xl text-sm hover:bg-[#1E3A5F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            style={{ fontWeight: 600 }}
-          >
-            <Lock className="w-4 h-4" /> Update Password
-          </button>
+          <button onClick={handleProfileSave} disabled={profileSaving || !name.trim() || !phoneNumber.trim()} className="mt-4 px-5 py-2.5 bg-[#0F172A] text-white rounded-xl text-sm hover:bg-[#1E3A5F] transition-colors disabled:opacity-60" style={{ fontWeight: 600 }}>{profileSaving ? "Saving..." : "Save Changes"}</button>
+          {profileMessage && <p className={`mt-3 text-sm ${profileMessage.includes("successfully") ? "text-green-600" : "text-red-600"}`}>{profileMessage}</p>}
         </div>
-
+        
         {/* Notification preferences */}
         <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6" style={{ boxShadow: "0 4px 16px rgba(15,23,42,0.07)" }}>
           <p className="text-sm text-[#0F172A] mb-4" style={{ fontWeight: 700 }}>Notification Preferences</p>
@@ -1535,7 +1515,7 @@ export function UserDashboard() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [agentOpen, setAgentOpen] = useState(false);
-  const [user, setUserState] = useState<{ name: string; email: string } | null>(() => getUser());
+  const [user, setUserState] = useState<StoredUser | null>(() => getUser());
 
   const getInitials = (name?: string, email?: string) => {
     const source = name?.trim() || email?.split("@")[0] || "User";
@@ -1567,6 +1547,7 @@ export function UserDashboard() {
           const nextUser = {
             name: authUser.name ?? authUser.email ?? "User",
             email: authUser.email ?? "",
+            phoneNumber: authUser.phoneNumber ?? "",
           };
           setUser(nextUser);
           setUserState(nextUser);
@@ -1599,7 +1580,7 @@ export function UserDashboard() {
       case "documents":
         return <MyDocumentsSection />;
       case "settings":
-        return <SettingsSection user={user} />;
+        return <SettingsSection user={user} onUserUpdated={setUserState} />;
       case "help":
         return (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>

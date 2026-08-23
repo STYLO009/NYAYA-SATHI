@@ -9,6 +9,7 @@ const {
   login,
   dashboard,
   logout,
+  updateProfile,
 } = require("../controllers/authController");
 
 const { isLoggedIn } = require("../middleware/authMiddleware");
@@ -16,27 +17,15 @@ const { isLoggedIn } = require("../middleware/authMiddleware");
 router.post("/signup", signup);
 
 router.post("/login", login);
-
 router.get("/dashboard", isLoggedIn, dashboard);
-
 router.get("/logout", logout);
-
-router.get(
-  "/google",
-
-  passport.authenticate("google", {
+router.get("/google", passport.authenticate("google", {
     scope: ["profile", "email"],
   }),
 );
-
-router.get(
-  "/google/callback",
-
-  passport.authenticate("google", {
+router.get("/google/callback",passport.authenticate("google", {
     failureRedirect: "/login",
-  }),
-
-  (req, res) => {
+  }), (req, res) => {
     // ======================================
     // IMPORT JWT
     // ======================================
@@ -78,5 +67,6 @@ router.get(
     res.redirect(`http://localhost:5173/dashboard?token=${token}`);
   },
 );
+router.put("/update-profile", isLoggedIn, updateProfile);
 
 module.exports = router;

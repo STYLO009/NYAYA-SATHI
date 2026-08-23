@@ -437,4 +437,3 @@ This project is currently built as a hackathon MVP.
 ## Why Nyaya Sathi Matters
 
 Nyaya Sathi aims to democratize legal awareness and make legal help more accessible, understandable, and affordable for ordinary citizens through AI-powered automation and assistance.
-docker run -d --name local-mongo -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password123 mongo:latest
