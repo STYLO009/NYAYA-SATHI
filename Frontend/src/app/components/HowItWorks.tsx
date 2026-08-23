@@ -1,45 +1,8 @@
 import { motion } from "motion/react";
 import { useInView } from "motion/react";
 import { useRef, useState, useEffect } from "react";
-import { Upload, Brain, BookOpen, BarChart3, Bell, ArrowRight } from "lucide-react";
-
-const steps = [
-  {
-    step: "01",
-    icon: Upload,
-    title: "Upload Document or Ask Question",
-    description: "Upload your legal document (FIR, court order, agreement) or simply type your legal question in any Indian language.",
-    detail: "Supports PDF, DOC, images, and text input",
-  },
-  {
-    step: "02",
-    icon: Brain,
-    title: "AI Analyzes Information",
-    description: "Our advanced AI engine processes your document or question, cross-referencing Indian law databases, case precedents, and legal guidelines.",
-    detail: "Powered by LLM trained on Indian legal corpus",
-  },
-  {
-    step: "03",
-    icon: BookOpen,
-    title: "Receive Simplified Guidance",
-    description: "Get clear, jargon-free explanations of your legal situation with actionable next steps in your preferred language.",
-    detail: "Available in 15+ Indian languages",
-  },
-  {
-    step: "04",
-    icon: BarChart3,
-    title: "Track Cases and Documents",
-    description: "Add your case details to the dashboard for ongoing monitoring of hearing dates, document submissions, and case progress.",
-    detail: "Real-time court updates where available",
-  },
-  {
-    step: "05",
-    icon: Bell,
-    title: "Receive Updates and Reminders",
-    description: "Stay on top of every legal deadline with intelligent reminders, pre-hearing checklists, and regular AI-generated progress updates.",
-    detail: "Via SMS, email, and in-app notifications",
-  },
-];
+import { ArrowRight } from "lucide-react";
+import { howItWorksSteps } from "../content/siteContent";
 
 const INTERVAL_MS = 1400;
 
@@ -55,7 +18,7 @@ export function HowItWorks() {
   useEffect(() => {
     if (!sectionInView) return;
     const id = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % steps.length);
+      setActiveIndex((prev) => (prev + 1) % howItWorksSteps.length);
     }, INTERVAL_MS);
     return () => clearInterval(id);
   }, [sectionInView]);
@@ -85,8 +48,8 @@ export function HowItWorks() {
 
         {/* Desktop Steps */}
         <div ref={sectionRef} className="hidden lg:flex items-start gap-0 relative">
-          <div className="absolute top-8 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-[#E5E7EB] via-[#0F172A]/20 to-[#E5E7EB]" />
-          {steps.map((step, i) => {
+          <div className="absolute top-8 left-[10%] right-[10%] h-0.5 bg-linear-to-r from-[#E5E7EB] via-[#0F172A]/20 to-[#E5E7EB]" />
+          {howItWorksSteps.map((step, i) => {
             const Icon = step.icon;
             const isActive = i === activeIndex;
             return (
@@ -160,7 +123,7 @@ export function HowItWorks() {
                   {step.detail}
                 </span>
 
-                {i < steps.length - 1 && (
+                {i < howItWorksSteps.length - 1 && (
                   <div className="absolute top-8 -right-4 z-20">
                     <ArrowRight className={`w-4 h-4 transition-colors duration-300 ${isActive ? "text-[#0F172A]" : "text-[#D1D5DB]"}`} />
                   </div>
@@ -172,7 +135,7 @@ export function HowItWorks() {
 
         {/* Mobile Steps */}
         <div className="lg:hidden space-y-6">
-          {steps.map((step, i) => {
+          {howItWorksSteps.map((step, i) => {
             const Icon = step.icon;
             const isActive = i === activeIndex;
             return (
@@ -184,7 +147,7 @@ export function HowItWorks() {
                 className="flex gap-4 items-start cursor-pointer"
                 onClick={() => setActiveIndex(i)}
               >
-                <div className="relative flex-shrink-0">
+                <div className="relative shrink-0">
                   <motion.div
                     animate={
                       isActive
@@ -226,7 +189,7 @@ export function HowItWorks() {
 
         {/* Progress dots */}
         <div className="flex items-center justify-center gap-2 mt-8">
-          {steps.map((_, i) => (
+          {howItWorksSteps.map((_, i) => (
             <button
               key={i}
               onClick={() => setActiveIndex(i)}

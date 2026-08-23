@@ -1,6 +1,7 @@
 import heroImage from "../../imports/ChatGPT_Image_May_29__2026__10_38_41_AM.png";
 import { motion } from "motion/react";
 import { ChevronRight, CheckCircle2, ArrowRight } from "lucide-react";
+import { heroCopy } from "../content/siteContent";
 
 function HeroImage() {
   return (
@@ -15,7 +16,7 @@ function HeroImage() {
       >
         <img
           src={heroImage}
-          alt="Scales of justice and gavel representing Indian legal system"
+          alt={heroCopy.imageAlt}
           className="w-full h-full object-cover"
           style={{ display: "block" }}
         />
@@ -52,14 +53,14 @@ export function HeroSection() {
               className="text-[#0F172A] mb-6"
               style={{ fontWeight: 800, fontSize: "3.25rem", lineHeight: 1.1, letterSpacing: "-0.03em" }}
             >
-              Justice Made Simple{" "}
+              {heroCopy.titleStart}{" "}
               <span className="relative">
-                <span className="text-[#1E3A5F]">for Every</span>
+                <span className="text-[#1E3A5F]">{heroCopy.titleEmphasis}</span>
                 <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
                   <path d="M2 6 C50 2, 150 2, 198 6" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
               </span>{" "}
-              Citizen
+              {heroCopy.titleEnd}
             </motion.h1>
 
             <motion.p
@@ -69,7 +70,7 @@ export function HeroSection() {
               className="text-[#374151] mb-8 max-w-lg"
               style={{ fontSize: "1.125rem", lineHeight: 1.7 }}
             >
-              Understand legal rights, decode complex documents, track cases, and receive AI-powered legal guidance in your preferred Indian language.
+              {heroCopy.description}
             </motion.p>
 
             <motion.div
@@ -79,11 +80,11 @@ export function HeroSection() {
               className="flex flex-wrap gap-3 mb-10"
             >
               <button className="flex items-center gap-2 bg-[#0F172A] text-white px-6 py-3.5 rounded-xl hover:bg-[#1E3A5F] transition-all duration-200 shadow-md hover:shadow-lg group">
-                <span style={{ fontWeight: 600, fontSize: "0.9375rem" }}>Try AI Assistant</span>
+                <span style={{ fontWeight: 600, fontSize: "0.9375rem" }}>{heroCopy.primaryAction}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <button className="flex items-center gap-2 bg-white text-[#0F172A] px-6 py-3.5 rounded-xl border border-[#E5E7EB] hover:border-[#0F172A]/30 hover:bg-[#F8FAFC] transition-all duration-200 group">
-                <span style={{ fontWeight: 600, fontSize: "0.9375rem" }}>Explore Features</span>
+                <span style={{ fontWeight: 600, fontSize: "0.9375rem" }}>{heroCopy.secondaryAction}</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
@@ -94,13 +95,9 @@ export function HeroSection() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="flex flex-wrap items-center gap-6"
             >
-              {[
-                { icon: CheckCircle2, text: "No Legal Expertise Required" },
-                { icon: CheckCircle2, text: "15+ Indian Languages" },
-                { icon: CheckCircle2, text: "100% Free for Citizens" },
-              ].map(({ icon: Icon, text }, i) => (
+              {heroCopy.highlights.map((text, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <Icon className="w-4 h-4 text-[#0F172A]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#0F172A]" />
                   <span className="text-sm text-[#374151]" style={{ fontWeight: 500 }}>{text}</span>
                 </div>
               ))}

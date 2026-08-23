@@ -1,47 +1,7 @@
 import { motion } from "motion/react";
 import { useInView } from "motion/react";
 import { useRef } from "react";
-import { FileWarning, ShieldQuestion, AlertCircle, Calendar, FileX, Languages } from "lucide-react";
-
-
-const problems = [
-  {
-    icon: FileWarning,
-    title: "Complex Legal Language",
-    description: "Legal documents are written in dense, archaic language that ordinary citizens find impossible to understand.",
-    color: "bg-red-50 text-red-600 border-red-100",
-  },
-  {
-    icon: ShieldQuestion,
-    title: "FIR Understanding",
-    description: "Citizens don't know what an FIR means, what rights they have, or what legal steps to take next.",
-    color: "bg-orange-50 text-orange-600 border-orange-100",
-  },
-  {
-    icon: AlertCircle,
-    title: "Rights Awareness Gap",
-    description: "Most citizens are unaware of their fundamental rights and legal protections under Indian law.",
-    color: "bg-yellow-50 text-yellow-600 border-yellow-100",
-  },
-  {
-    icon: Calendar,
-    title: "Case Tracking Challenges",
-    description: "Keeping track of hearing dates, legal milestones, and court proceedings is confusing and error-prone.",
-    color: "bg-blue-50 text-blue-600 border-blue-100",
-  },
-  {
-    icon: FileX,
-    title: "Document Complexity",
-    description: "Legal documents, petitions, and court orders are overwhelming without professional legal assistance.",
-    color: "bg-purple-50 text-purple-600 border-purple-100",
-  },
-  {
-    icon: Languages,
-    title: "Language Barriers",
-    description: "Legal services are predominantly in English, excluding millions of citizens who speak regional languages.",
-    color: "bg-green-50 text-green-600 border-green-100",
-  },
-];
+import { problemCards } from "../content/siteContent";
 
 function ProblemCard({ problem, index }) {
   const ref = useRef(null);
@@ -105,7 +65,7 @@ export function ProblemSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {problems.map((problem, i) => (
+          {problemCards.map((problem, i) => (
             <ProblemCard key={i} problem={problem} index={i} />
           ))}
         </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { Scale, Eye, EyeOff, ArrowLeft, Briefcase } from "lucide-react";
+import { appName, authCopy } from "../content/siteContent";
 
 const practiceAreas = [
   "Criminal Law", "Civil Law", "Family / Matrimonial", "Property / Real Estate",
@@ -22,11 +23,11 @@ export function LawyerSignUpPage() {
     password: "",
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e:any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
     navigate("/dashboard");
   };
@@ -40,7 +41,7 @@ export function LawyerSignUpPage() {
             <Scale className="w-4 h-4 text-white" />
           </div>
           <span style={{ fontWeight: 700, fontSize: "1.125rem", color: "#ffffff", letterSpacing: "-0.02em" }}>
-            Nyaya Saathi
+            {appName}
           </span>
         </button>
         <button
@@ -49,7 +50,7 @@ export function LawyerSignUpPage() {
           style={{ fontWeight: 500 }}
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Home
+          {authCopy.backButton}
         </button>
       </div>
 
@@ -75,9 +76,9 @@ export function LawyerSignUpPage() {
                 <span className="text-xs text-blue-600" style={{ fontWeight: 600 }}>Lawyer Portal</span>
               </div>
               <h1 className="text-[#0F172A] mb-1" style={{ fontWeight: 800, fontSize: "1.625rem", letterSpacing: "-0.02em" }}>
-                Register as a Lawyer
+                {authCopy.lawyerSignup.headline}
               </h1>
-              <p className="text-[#6B7280] text-sm">Join Nyaya Saathi and connect with clients who need your expertise</p>
+              <p className="text-[#6B7280] text-sm">{authCopy.lawyerSignup.subheadline}</p>
             </div>
 
             {/* Form */}
@@ -217,22 +218,22 @@ export function LawyerSignUpPage() {
                 className="w-full bg-[#0F172A] text-white rounded-xl py-3 hover:bg-[#1E3A5F] transition-colors"
                 style={{ fontWeight: 600, fontSize: "0.9375rem" }}
               >
-                Register as Lawyer
+                {authCopy.lawyerSignup.submit}
               </button>
             </form>
 
             {/* Links */}
             <div className="mt-5 pt-5 border-t border-[#F1F5F9] text-center space-y-2">
               <p className="text-sm text-[#6B7280]">
-                Already registered?{" "}
+                {authCopy.lawyerSignup.footerPromptOne}{" "}
                 <button onClick={() => navigate("/login-lawyer")} className="text-[#0F172A] hover:underline" style={{ fontWeight: 600 }}>
-                  Sign in as Lawyer
+                  {authCopy.lawyerSignup.footerActionOne}
                 </button>
               </p>
               <p className="text-sm text-[#6B7280]">
-                Not a lawyer?{" "}
+                {authCopy.lawyerSignup.footerPromptTwo}{" "}
                 <button onClick={() => navigate("/signup")} className="text-[#0F172A] hover:underline" style={{ fontWeight: 600 }}>
-                  Sign up as User
+                  {authCopy.lawyerSignup.footerActionTwo}
                 </button>
               </p>
             </div>

@@ -12,6 +12,7 @@ import {
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { apiFetch, getToken, setToken, clearToken, getUser, setUser, clearUser } from "../../lib/api";
+import { authUrls, dashboardCopy } from "../content/siteContent";
 
 const sidebarItems = [
   { icon: LayoutDashboard, label: "Dashboard", id: "dashboard" },
@@ -26,12 +27,14 @@ const sidebarItems = [
 ];
 
 // ── Agent Chat Modal ──────────────────────────────────────────────────────────
-const initialMessages = [
-  { from: "agent", text: "Namaste! I'm your Nyaya Saathi AI Agent. I'm here to help you understand your legal rights, decode documents, or guide you through any legal situation. How can I assist you today?" },
+type ChatMessage = { from: "agent" | "user"; text: string };
+
+const initialMessages: ChatMessage[] = [
+  { from: "agent", text: dashboardCopy.agentWelcome },
 ];
 
 function AgentModal({ onClose }: { onClose: () => void }) {
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -47,7 +50,7 @@ function AgentModal({ onClose }: { onClose: () => void }) {
     setMessages(prev => [...prev, { from: "user", text }]);
     setLoading(true);
     try {
-      const res = await fetch("https://disdain-kindly-old.ngrok-free.dev/chat",{
+      const res = await fetch(authUrls.aiChat,{
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -89,10 +92,10 @@ function AgentModal({ onClose }: { onClose: () => void }) {
             <MessageSquare className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-white text-sm" style={{ fontWeight: 700 }}>Nyaya Saathi AI Agent</p>
+            <p className="text-white text-sm" style={{ fontWeight: 700 }}>{dashboardCopy.agentTitle}</p>
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-              <p className="text-white/50 text-xs">Online — Ready to assist</p>
+              <p className="text-white/50 text-xs">{dashboardCopy.onlineStatus}</p>
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
@@ -180,7 +183,7 @@ function FIRSection() {
 
   const selectedOption = [
     { id: "write", label: "Write an FIR", icon: FileText, desc: "Draft and file a First Information Report with guided AI assistance", color: "text-red-600", bg: "bg-red-50 border-red-100" },
-    { id: "complaint", label: "Complaint regarding FIR", icon: ShieldAlert, desc: "File a complaint about an existing FIR — delayed registration, false FIR, or improper investigation", color: "text-orange-600", bg: "bg-orange-50 border-orange-100" },
+    { id: dashboardCopy.firOptions.complaint.id, label: dashboardCopy.firOptions.complaint.label, icon: ShieldAlert, desc: dashboardCopy.firOptions.complaint.desc, color: "text-orange-600", bg: "bg-orange-50 border-orange-100" },
   ].find(o => o.id === selected);
 
   return (
@@ -212,7 +215,7 @@ function FIRSection() {
               >
                 {[
                   { id: "write", label: "Write an FIR", icon: FileText, desc: "Draft and file a First Information Report with guided AI assistance", color: "text-red-600", bg: "bg-red-50 border-red-100" },
-                  { id: "complaint", label: "Complaint regarding FIR", icon: ShieldAlert, desc: "File a complaint about an existing FIR — delayed registration, false FIR, or improper investigation", color: "text-orange-600", bg: "bg-orange-50 border-orange-100" },
+                  { id: dashboardCopy.firOptions.complaint.id, label: dashboardCopy.firOptions.complaint.label, icon: ShieldAlert, desc: dashboardCopy.firOptions.complaint.desc, color: "text-orange-600", bg: "bg-orange-50 border-orange-100" },
                 ].map((opt) => (
                   <button
                     key={opt.id}
@@ -887,7 +890,7 @@ function MyDocumentsSection() {
 }
 
 // ── Settings Section ──────────────────────────────────────────────────────────
-function SettingsSection() {
+function SettingsSection({ user }: { user: { name: string; email: string } | null }) {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -914,15 +917,22 @@ function SettingsSection() {
           <p className="text-sm text-[#0F172A] mb-4" style={{ fontWeight: 700 }}>Profile Information</p>
           <div className="flex items-center gap-4 mb-5">
             <div className="w-14 h-14 bg-[#0F172A] rounded-2xl flex items-center justify-center">
-              <span className="text-white" style={{ fontWeight: 700, fontSize: "1.25rem" }}>RK</span>
+              <span className="text-white" style={{ fontWeight: 700, fontSize: "1.25rem" }}>
+                {(user?.name?.trim()?.[0] ?? user?.email?.trim()?.[0] ?? "U").toUpperCase()}
+                {(user?.name?.split(/\s+/).filter(Boolean).slice(1)[0]?.[0] ?? "").toUpperCase()}
+              </span>
             </div>
             <div>
-              <p className="text-[#0F172A] text-sm" style={{ fontWeight: 600 }}>Rajesh Kumar</p>
-              <p className="text-[#9CA3AF] text-xs">rajesh@email.com</p>
+              <p className="text-[#0F172A] text-sm" style={{ fontWeight: 600 }}>{user?.name ?? "User"}</p>
+              <p className="text-[#9CA3AF] text-xs">{user?.email ?? ""}</p>
             </div>
           </div>
           <div className="space-y-3">
-            {[{ label: "Full Name", val: "Rajesh Kumar" }, { label: "Email Address", val: "rajesh@email.com" }, { label: "Phone Number", val: "+91 98765 43210" }].map((f, i) => (
+            {[
+              { label: "Full Name", val: user?.name ?? "" },
+              { label: "Email Address", val: user?.email ?? "" },
+              { label: "Phone Number", val: "+91 98765 43210" },
+            ].map((f, i) => (
               <div key={i}>
                 <label className="block text-xs text-[#6B7280] mb-1" style={{ fontWeight: 600 }}>{f.label.toUpperCase()}</label>
                 <input defaultValue={f.val} className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm text-[#0F172A] focus:outline-none focus:border-[#0F172A] transition-colors" />
@@ -1246,7 +1256,7 @@ function TeleconsultationSection() {
 // ── Help & Support Section ────────────────────────────────────────────────────
 const faqs = [
   { q: "How do I upload a legal document for analysis?", a: "Go to the Documents section, click 'Upload Document', and select your PDF or image. Our AI will analyze it within seconds." },
-  { q: "Is the AI legal guidance a substitute for a lawyer?", a: "No. Nyaya Saathi provides general legal information for awareness purposes only. For specific legal matters, always consult a qualified lawyer." },
+  { q: "Is the AI legal guidance a substitute for a lawyer?", a: dashboardCopy.faqs.legalGuidance },
   { q: "How do I file an FIR complaint?", a: "Visit your nearest police station and submit a written complaint. You can also file an e-FIR on your state police portal. Our AI Agent can guide you step by step." },
 ];
 
@@ -1525,7 +1535,16 @@ export function UserDashboard() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [agentOpen, setAgentOpen] = useState(false);
-  const user = getUser();
+  const [user, setUserState] = useState<{ name: string; email: string } | null>(() => getUser());
+
+  const getInitials = (name?: string, email?: string) => {
+    const source = name?.trim() || email?.split("@")[0] || "User";
+    const parts = source.split(/\s+/).filter(Boolean);
+    const initials = parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
+      : source.slice(0, 2);
+    return initials.toUpperCase();
+  };
 
   useEffect(() => {
     // Capture token from Google OAuth redirect (?token=...)
@@ -1535,9 +1554,30 @@ export function UserDashboard() {
       setToken(urlToken);
       window.history.replaceState({}, "", "/dashboard");
     }
-    if (!getToken() && !urlToken) {
+    const storedToken = getToken();
+    if (!storedToken && !urlToken) {
       navigate("/login");
+      return;
     }
+
+    apiFetch("/auth/dashboard")
+      .then((data) => {
+        const authUser = data?.user ?? data?.data?.user ?? data?.data ?? null;
+        if (authUser?.name || authUser?.email) {
+          const nextUser = {
+            name: authUser.name ?? authUser.email ?? "User",
+            email: authUser.email ?? "",
+          };
+          setUser(nextUser);
+          setUserState(nextUser);
+        }
+      })
+      .catch(() => {
+        const cached = getUser();
+        if (cached) {
+          setUserState(cached);
+        }
+      });
   }, []);
 
   const handleLogout = () => {
@@ -1559,7 +1599,7 @@ export function UserDashboard() {
       case "documents":
         return <MyDocumentsSection />;
       case "settings":
-        return <SettingsSection />;
+        return <SettingsSection user={user} />;
       case "help":
         return (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
@@ -1602,7 +1642,7 @@ export function UserDashboard() {
               <User className="w-4 h-4 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-xs truncate" style={{ fontWeight: 600 }}>{user?.name ?? "User"}</p>
+              <p className="text-white text-xs truncate" style={{ fontWeight: 600 }}>{user?.name ?? user?.email ?? "User"}</p>
               <p className="text-white/40 text-[10px] truncate">{user?.email ?? ""}</p>
             </div>
           </div>
@@ -1629,7 +1669,7 @@ export function UserDashboard() {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
             </button>
             <div className="w-9 h-9 bg-[#0F172A] rounded-xl flex items-center justify-center">
-              <span className="text-white text-xs" style={{ fontWeight: 700 }}>RK</span>
+              <span className="text-white text-xs" style={{ fontWeight: 700 }}>{getInitials(user?.name, user?.email)}</span>
             </div>
           </div>
         </div>

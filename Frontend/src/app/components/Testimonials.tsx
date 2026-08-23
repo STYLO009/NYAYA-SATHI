@@ -2,42 +2,7 @@ import { motion } from "motion/react";
 import { useInView } from "motion/react";
 import { useRef } from "react";
 import { Star, Quote } from "lucide-react";
-
-const testimonials = [
-  {
-    name: "Priya Sharma",
-    role: "First-time FIR Complainant",
-    location: "Jaipur, Rajasthan",
-    avatar: "PS",
-    rating: 5,
-    review: "I received a threatening legal notice and had no idea what to do. Nyaya Saathi explained it in simple Hindi and told me exactly what steps to take. I felt empowered instead of scared.",
-    type: "Citizen",
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-  },
-  {
-    name: "Arjun Menon",
-    role: "Law Student",
-    location: "Ernakulam, Kerala",
-    avatar: "AM",
-    rating: 5,
-    review: "As a law student, I use Nyaya Saathi to simplify complex judgments for my research. The AI explanations are accurate, contextual, and available in Malayalam. Outstanding platform.",
-    type: "Student",
-    bg: "bg-green-50",
-    text: "text-green-700",
-  },
-  {
-    name: "Fatima Ansari",
-    role: "Legal Aid Coordinator",
-    location: "Lucknow, Uttar Pradesh",
-    avatar: "FA",
-    rating: 5,
-    review: "Our NGO uses Nyaya Saathi to assist rural clients who can't afford lawyers. The multilingual support and rights education have transformed how we deliver legal aid services.",
-    type: "NGO",
-    bg: "bg-purple-50",
-    text: "text-purple-700",
-  },
-];
+import { testimonials } from "../content/siteContent";
 
 function TestimonialCard({ t, index }) {
   const ref = useRef(null);

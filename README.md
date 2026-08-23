@@ -1,12 +1,12 @@
 <img width="1644" height="1136" alt="ARCHITECTURE" src="https://github.com/user-attachments/assets/4ea3deef-c1ef-40c8-a3fa-b3d723597580" />
 
-# NyayaAI — AI-Powered Legal Assistance Platform
+# Nyaya Sathi — AI-Powered Legal Assistance Platform
 
 > “Justice becomes accessible when understanding becomes simpler.”
 
 ## Overview
 
-NyayaAI is an AI-powered legal assistance and case guidance platform designed to simplify legal processes for ordinary citizens.
+Nyaya Sathi is an AI-powered legal assistance and case guidance platform designed to simplify legal processes for ordinary citizens.
 
 The platform bridges the gap between complex legal systems and public understanding by offering:
 
@@ -17,7 +17,7 @@ The platform bridges the gap between complex legal systems and public understand
 - Case progress tracking
 - Multilingual legal support
 
-The system is built as a full-stack MERN application with AI integrations using Ollama and Gemini APIs.
+The system is built as a full-stack MERN application with AI integrations using HuggingFace and Gemini APIs.
 
 ---
 
@@ -32,7 +32,7 @@ Many citizens:
 - Face language barriers
 - Lack affordable legal guidance
 
-NyayaAI simplifies these challenges using AI-powered automation and legal assistance tools.
+Nyaya Sathi simplifies these challenges using AI-powered automation and legal assistance tools.
 
 ---
 
@@ -89,7 +89,7 @@ The Citizen Dashboard acts as the central legal workspace.
 
 ### Uses
 
-- Ollama Local API
+- HuggingFace
 
 ### Purpose
 
@@ -119,7 +119,7 @@ The AI system:
 
 Powered by:
 
-- Ollama Local API
+- HuggingFace
 
 ---
 
@@ -173,7 +173,7 @@ This feature helps users quickly understand complicated legal paperwork.
 
 ## Smart Reminder System
 
-NyayaAI supports two reminder methods.
+Nyaya Sathi supports two reminder methods.
 
 ### 1. Manual Reminder Creation
 
@@ -291,7 +291,7 @@ The system dynamically updates a visual progress tracker.
 
 ## AI Services
 
-### Ollama Local API
+### HuggingFace
 
 Used for:
 
@@ -390,7 +390,7 @@ Dashboard Progress Bar Updates
 | Database          | MongoDB              |
 | Containerization  | Docker               |
 | Authentication    | JWT + Google OAuth   |
-| AI Engine         | Ollama Local API     |
+| AI Engine         | HuggingFace     |
 | AI Insights       | Gemini API           |
 | Notifications     | Nodemailer           |
 | Password Security | bcrypt               |
@@ -434,7 +434,7 @@ This project is currently built as a hackathon MVP.
 
 ---
 
-## Why NyayaAI Matters
+## Why Nyaya Sathi Matters
 
-NyayaAI aims to democratize legal awareness and make legal help more accessible, understandable, and affordable for ordinary citizens through AI-powered automation and assistance.
+Nyaya Sathi aims to democratize legal awareness and make legal help more accessible, understandable, and affordable for ordinary citizens through AI-powered automation and assistance.
 docker run -d --name local-mongo -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password123 mongo:latest

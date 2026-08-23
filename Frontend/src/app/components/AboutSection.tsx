@@ -1,30 +1,8 @@
 import { motion } from "motion/react";
 import { useInView } from "motion/react";
 import { useRef } from "react";
-import { Scale, Target, Heart, Zap, CheckCircle2, ArrowRight } from "lucide-react";
-
-const values = [
-  {
-    icon: Target,
-    title: "Citizen-First Design",
-    description: "Every feature is built around the needs of ordinary citizens, not legal experts.",
-  },
-  {
-    icon: Heart,
-    title: "Inclusive Access",
-    description: "We believe justice is a right, not a privilege. Our platform ensures no one is left behind.",
-  },
-  {
-    icon: Zap,
-    title: "AI-Powered Accuracy",
-    description: "Our AI is trained specifically on Indian law to provide accurate, contextual guidance.",
-  },
-  {
-    icon: Scale,
-    title: "Transparent & Trustworthy",
-    description: "We clearly distinguish AI guidance from professional legal advice, always.",
-  },
-];
+import { Scale, CheckCircle2, ArrowRight } from "lucide-react";
+import { aboutValues, appName } from "../content/siteContent";
 
 export function AboutSection() {
   const ref = useRef(null);
@@ -43,7 +21,7 @@ export function AboutSection() {
               className="inline-flex items-center gap-2 bg-[#0F172A]/5 border border-[#0F172A]/10 rounded-full px-4 py-1.5 mb-4"
             >
               <Scale className="w-3.5 h-3.5 text-[#0F172A]" />
-              <span className="text-xs text-[#0F172A]" style={{ fontWeight: 600 }}>About Nyaya Saathi</span>
+              <span className="text-xs text-[#0F172A]" style={{ fontWeight: 600 }}>About {appName}</span>
             </motion.div>
 
             <motion.h2
@@ -63,7 +41,7 @@ export function AboutSection() {
               className="text-[#6B7280] mb-8"
               style={{ fontSize: "1.0625rem", lineHeight: 1.8 }}
             >
-              Nyaya Saathi simplifies legal information and makes justice accessible for every Indian citizen — regardless of education, income, or language.
+              {appName} simplifies legal information and makes justice accessible for every Indian citizen — regardless of education, income, or language.
             </motion.p>
 
             <motion.div
@@ -72,7 +50,7 @@ export function AboutSection() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="grid grid-cols-2 gap-4 mb-8"
             >
-              {values.map(({ icon: Icon, title, description }, i) => (
+              {aboutValues.map(({ icon: Icon, title, description }, i) => (
                 <div key={i} className="bg-white rounded-xl p-4 border border-[#E5E7EB]" style={{ boxShadow: "0 4px 16px rgba(15,23,42,0.07), 0 1px 3px rgba(15,23,42,0.04)" }}>
                   <div className="w-8 h-8 bg-[#0F172A]/5 border border-[#0F172A]/10 rounded-lg flex items-center justify-center mb-2">
                     <Icon className="w-4 h-4 text-[#0F172A]" />
@@ -115,7 +93,7 @@ export function AboutSection() {
                 </div>
 
                 <div className="text-center mb-8">
-                  <p className="text-[#0F172A] mb-2" style={{ fontWeight: 800, fontSize: "1.5rem" }}>Nyaya Saathi</p>
+                  <p className="text-[#0F172A] mb-2" style={{ fontWeight: 800, fontSize: "1.5rem" }}>{appName}</p>
                   <p className="text-[#6B7280] text-sm">nyāya sāthī (न्याय साथी)</p>
                   <p className="text-[#9CA3AF] text-xs mt-1">Meaning: "Companion in Justice"</p>
                 </div>
@@ -129,7 +107,7 @@ export function AboutSection() {
                     { text: "Consumer protection laws & RTI Act", icon: CheckCircle2 },
                   ].map(({ text, icon: Icon }, i) => (
                     <div key={i} className="flex items-center gap-3 bg-white rounded-xl px-4 py-2.5 border border-[#E5E7EB]" style={{ boxShadow: "0 2px 8px rgba(15,23,42,0.06)" }}>
-                      <Icon className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <Icon className="w-4 h-4 text-green-500 shrink-0" />
                       <span className="text-sm text-[#374151]" style={{ fontWeight: 500 }}>{text}</span>
                     </div>
                   ))}

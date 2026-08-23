@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { Scale, Eye, EyeOff, ArrowLeft, Briefcase } from "lucide-react";
+import { appName, authCopy } from "../content/siteContent";
 
 export function LawyerLoginPage() {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export function LawyerLoginPage() {
             <Scale className="w-4 h-4 text-white" />
           </div>
           <span style={{ fontWeight: 700, fontSize: "1.125rem", color: "#ffffff", letterSpacing: "-0.02em" }}>
-            Nyaya Saathi
+            {appName}
           </span>
         </button>
         <button
@@ -35,7 +36,7 @@ export function LawyerLoginPage() {
           style={{ fontWeight: 500 }}
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Home
+          {authCopy.backButton}
         </button>
       </div>
 
@@ -61,9 +62,9 @@ export function LawyerLoginPage() {
                 <span className="text-xs text-blue-600" style={{ fontWeight: 600 }}>Lawyer Portal</span>
               </div>
               <h1 className="text-[#0F172A] mb-1" style={{ fontWeight: 800, fontSize: "1.625rem", letterSpacing: "-0.02em" }}>
-                Welcome back, Counsellor
+                {authCopy.lawyerLogin.headline}
               </h1>
-              <p className="text-[#6B7280] text-sm">Sign in to your lawyer account</p>
+              <p className="text-[#6B7280] text-sm">{authCopy.lawyerLogin.subheadline}</p>
             </div>
 
             {/* Form */}
@@ -118,22 +119,22 @@ export function LawyerLoginPage() {
                 className="w-full bg-[#0F172A] text-white rounded-xl py-3 hover:bg-[#1E3A5F] transition-colors mt-2"
                 style={{ fontWeight: 600, fontSize: "0.9375rem" }}
               >
-                Sign In as Lawyer
+                {authCopy.lawyerLogin.submit}
               </button>
             </form>
 
             {/* Switch to user login */}
             <div className="mt-5 pt-5 border-t border-[#F1F5F9] text-center space-y-2">
               <p className="text-sm text-[#6B7280]">
-                Not a lawyer?{" "}
+                {authCopy.lawyerLogin.footerPromptOne}{" "}
                 <button onClick={() => navigate("/login")} className="text-[#0F172A] hover:underline" style={{ fontWeight: 600 }}>
-                  Login as User
+                  {authCopy.lawyerLogin.footerActionOne}
                 </button>
               </p>
               <p className="text-sm text-[#6B7280]">
-                New lawyer?{" "}
+                {authCopy.lawyerLogin.footerPromptTwo}{" "}
                 <button onClick={() => navigate("/signup-lawyer")} className="text-[#0F172A] hover:underline" style={{ fontWeight: 600 }}>
-                  Register your profile
+                  {authCopy.lawyerLogin.footerActionTwo}
                 </button>
               </p>
             </div>

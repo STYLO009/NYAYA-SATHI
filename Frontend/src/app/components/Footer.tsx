@@ -1,37 +1,5 @@
 import { Scale, Github, Twitter, Linkedin, Mail, Phone, MapPin, ArrowRight } from "lucide-react";
-
-const footerLinks = {
-  Platform: [
-    { label: "Features" },
-    { label: "Dashboard" },
-    { label: "AI Assistant" },
-    { label: "Case Tracking" },
-  ],
-  Resources: [
-    { label: "Legal Rights Guide" },
-    { label: "FIR Handbook" },
-    { label: "FAQ" },
-    { label: "Documentation" },
-  ],
-  Company: [
-    { label: "About Us" },
-    { label: "Contact" },
-    { label: "Careers" },
-    { label: "Press Kit" },
-  ],
-  Legal: [
-    { label: "Privacy Policy" },
-    { label: "Terms of Service" },
-    { label: "Disclaimer" },
-    { label: "Cookie Policy" },
-  ],
-};
-
-const supportedBy = [
-  "Ministry of Law & Justice",
-  "NALSA",
-  "Digital India Initiative",
-];
+import { appName, footerCopy, footerSections, supportedBy } from "../content/siteContent";
 
 export function Footer() {
   return (
@@ -43,10 +11,10 @@ export function Footer() {
             className="text-white whitespace-nowrap"
             style={{ fontWeight: 800, fontSize: "1.75rem", letterSpacing: "-0.02em", lineHeight: 1.25 }}
           >
-            Start Your Journey Towards Legal Awareness !
+            {footerCopy.ctaTitle}
           </h2>
           <button className="flex-shrink-0 flex items-center gap-2 bg-white text-[#0F172A] px-7 py-3.5 rounded-xl hover:bg-white/90 transition-all duration-200 shadow-lg group">
-            <span style={{ fontWeight: 700, fontSize: "0.9375rem" }}>Get Started Free</span>
+            <span style={{ fontWeight: 700, fontSize: "0.9375rem" }}>{footerCopy.ctaButton}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -62,10 +30,10 @@ export function Footer() {
               <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
                 <Scale className="w-4 h-4 text-white" />
               </div>
-              <span className="text-white" style={{ fontWeight: 700, fontSize: "1.125rem" }}>Nyaya Saathi</span>
+              <span className="text-white" style={{ fontWeight: 700, fontSize: "1.125rem" }}>{appName}</span>
             </div>
             <p className="text-white/40 text-sm mb-5" style={{ lineHeight: 1.7 }}>
-              AI-powered smart legal assistance platform making justice accessible for every Indian citizen.
+              {footerCopy.brandDescription}
             </p>
             <div className="flex items-center gap-3 mb-6">
               {[Github, Twitter, Linkedin].map((Icon, i) => (
@@ -80,21 +48,21 @@ export function Footer() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-white/30" />
-                <span className="text-white/40 text-xs">help@nyayasaathi.gov.in</span>
+                <span className="text-white/40 text-xs">{footerCopy.email}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-white/30" />
-                <span className="text-white/40 text-xs">1800-XXX-XXXX (Toll Free)</span>
+                <span className="text-white/40 text-xs">{footerCopy.phone}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-white/30" />
-                <span className="text-white/40 text-xs">New Delhi, India</span>
+                <span className="text-white/40 text-xs">{footerCopy.location}</span>
               </div>
             </div>
           </div>
 
           {/* Links */}
-          {Object.entries(footerLinks).map(([section, links]) => (
+          {Object.entries(footerSections).map(([section, links]) => (
             <div key={section}>
               <p className="text-white text-sm mb-4" style={{ fontWeight: 600 }}>{section}</p>
               <ul className="space-y-2.5">
@@ -127,20 +95,20 @@ export function Footer() {
         {/* Disclaimer */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-8">
           <p className="text-white/30 text-xs" style={{ lineHeight: 1.7 }}>
-            <strong className="text-white/50">Disclaimer:</strong> Nyaya Saathi provides general legal information and AI-generated guidance for educational purposes only. The information provided does not constitute legal advice. For specific legal matters, please consult a qualified legal professional. This platform is not affiliated with any court or government body.
+            <strong className="text-white/50">Disclaimer:</strong> {footerCopy.disclaimer}
           </p>
         </div>
 
         {/* Bottom Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-6">
           <p className="text-white/30 text-xs">
-            © 2026 Nyaya Saathi. All rights reserved. Built for Bharat 🇮🇳
+            {footerCopy.copyright}
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-white/20 text-xs">Made with ❤️ for Indian Citizens</span>
+            <span className="text-white/20 text-xs">{footerCopy.supportLine}</span>
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-white/30 text-xs">All systems operational</span>
+              <span className="text-white/30 text-xs">{footerCopy.systemStatus}</span>
             </div>
           </div>
         </div>

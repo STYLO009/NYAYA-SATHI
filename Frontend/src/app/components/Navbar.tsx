@@ -1,16 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ElementType } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
-import { Scale, Menu, X, ChevronDown, User, Briefcase } from "lucide-react";
+import { Scale, Menu, X, ChevronDown } from "lucide-react";
+import { appName, authOptions, navLinks } from "../content/siteContent";
 
 function NavDropdown({
   label,
   options,
   buttonClassName,
+  onSelect,
 }: {
   label: string;
-  options: { icon: React.ElementType; title: string; subtitle: string; onClick: () => void }[];
+  options: { icon: ElementType; title: string; subtitle: string; route: string }[];
   buttonClassName: string;
+  onSelect: (route: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -46,10 +49,10 @@ function NavDropdown({
             {options.map((opt, i) => (
               <button
                 key={i}
-                onClick={() => { opt.onClick(); setOpen(false); }}
+                onClick={() => { onSelect(opt.route); setOpen(false); }}
                 className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#F8FAFC] transition-colors text-left border-b border-[#F1F5F9] last:border-0"
               >
-                <div className="w-8 h-8 bg-[#F1F5F9] rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-[#F1F5F9] rounded-xl flex items-center justify-center" style={{ flexShrink: 0 }}>
                   <opt.icon className="w-4 h-4 text-[#0F172A]" />
                 </div>
                 <div>
@@ -71,29 +74,11 @@ export function Navbar() {
   const [mobileLoginOpen, setMobileLoginOpen] = useState(false);
   const [mobileSignupOpen, setMobileSignupOpen] = useState(false);
 
-  const links = [
-    { label: "Features", id: "features" },
-    { label: "Dashboard", id: "dashboard" },
-    { label: "How It Works", id: "how-it-works" },
-    { label: "About", id: "about" },
-    { label: "Contact", id: "contact" },
-  ];
-
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth" });
     setMobileOpen(false);
   };
-
-  const loginOptions = [
-    { icon: User, title: "Login as User", subtitle: "Access your legal dashboard", onClick: () => navigate("/login") },
-    { icon: Briefcase, title: "Login as Lawyer", subtitle: "Access your lawyer portal", onClick: () => navigate("/login-lawyer") },
-  ];
-
-  const signupOptions = [
-    { icon: User, title: "Sign up as User", subtitle: "Start your legal journey", onClick: () => navigate("/signup") },
-    { icon: Briefcase, title: "Sign up as Lawyer", subtitle: "Register your legal profile", onClick: () => navigate("/signup-lawyer") },
-  ];
 
   return (
     <motion.nav
@@ -113,13 +98,13 @@ export function Navbar() {
               <Scale className="w-4 h-4 text-white" />
             </div>
             <span style={{ fontWeight: 700, fontSize: "1.125rem", color: "#ffffff", letterSpacing: "-0.02em" }}>
-              Nyaya Saathi
+              {appName}
             </span>
           </div>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            {links.map((link) => (
+            {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollTo(link.id)}
@@ -135,13 +120,15 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <NavDropdown
               label="Login"
-              options={loginOptions}
+              options={authOptions.login}
               buttonClassName="text-sm text-white/70 hover:text-white transition-colors px-4 py-2 rounded-lg"
+              onSelect={(route) => navigate(route)}
             />
             <NavDropdown
               label="Get Started"
-              options={signupOptions}
+              options={authOptions.signup}
               buttonClassName="text-sm bg-white text-[#0F172A] px-5 py-2.5 rounded-lg hover:bg-white/90 transition-all duration-200 shadow-sm"
+              onSelect={(route) => navigate(route)}
             />
           </div>
 
@@ -166,7 +153,7 @@ export function Navbar() {
             className="md:hidden bg-[#1E3A5F] border-t border-white/10 px-6 py-4"
           >
             <div className="flex flex-col gap-4">
-              {links.map((link) => (
+              {navLinks.map((link) => (
                 <button
                   key={link.id}
                   onClick={() => scrollTo(link.id)}
@@ -195,13 +182,13 @@ export function Navbar() {
                       exit={{ opacity: 0, height: 0 }}
                       className="flex flex-col gap-1 pl-2"
                     >
-                      {loginOptions.map((opt, i) => (
+                      {authOptions.login.map((opt, i) => (
                         <button
                           key={i}
-                          onClick={() => { opt.onClick(); setMobileOpen(false); }}
+                          onClick={() => { navigate(opt.route); setMobileOpen(false); }}
                           className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 transition-colors text-left"
                         >
-                          <opt.icon className="w-4 h-4 text-white/60 flex-shrink-0" />
+                          <opt.icon className="w-4 h-4 text-white/60" style={{ flexShrink: 0 }} />
                           <div>
                             <p className="text-sm text-white" style={{ fontWeight: 500 }}>{opt.title}</p>
                             <p className="text-[11px] text-white/40">{opt.subtitle}</p>
@@ -229,13 +216,13 @@ export function Navbar() {
                       exit={{ opacity: 0, height: 0 }}
                       className="flex flex-col gap-1 pl-2"
                     >
-                      {signupOptions.map((opt, i) => (
+                      {authOptions.signup.map((opt, i) => (
                         <button
                           key={i}
-                          onClick={() => { opt.onClick(); setMobileOpen(false); }}
+                          onClick={() => { navigate(opt.route); setMobileOpen(false); }}
                           className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 transition-colors text-left"
                         >
-                          <opt.icon className="w-4 h-4 text-white/60 flex-shrink-0" />
+                          <opt.icon className="w-4 h-4 text-white/60" style={{ flexShrink: 0 }} />
                           <div>
                             <p className="text-sm text-white" style={{ fontWeight: 500 }}>{opt.title}</p>
                             <p className="text-[11px] text-white/40">{opt.subtitle}</p>
