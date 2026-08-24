@@ -46,6 +46,10 @@ const lawyerSchema = new mongoose.Schema(
         "Other",
       ],
     },
+    profilePicture: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true },
 );

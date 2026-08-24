@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { Scale, Eye, EyeOff, ArrowLeft, Briefcase } from "lucide-react";
+import { apiFetch, setLawyer, setToken } from "../../lib/api";
 import { appName, authCopy } from "../content/siteContent";
 
 const practiceAreas = [
@@ -22,14 +23,38 @@ export function LawyerSignUpPage() {
     experience: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e:any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e:any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    navigate("/dashboard");
+    setLoading(true);
+    setError("");
+    try {
+      const data = await apiFetch("/auth/signup-lawyer", {
+        method: "POST",
+        body: JSON.stringify({
+          name: form.fullName,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+          BarCouncilEnrollment: form.barCouncilId,
+          primaryPracticeArea: form.practiceArea,
+          yearsOfExperience: Number(form.experience),
+        }),
+      });
+      setToken(data.token);
+      setLawyer(data.user);
+      navigate("/dashboard-lawyer");
+    } catch (err: any) {
+      setError(err.message ?? "Signup failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -215,11 +240,13 @@ export function LawyerSignUpPage() {
               {/* Submit */}
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full bg-[#0F172A] text-white rounded-xl py-3 hover:bg-[#1E3A5F] transition-colors"
                 style={{ fontWeight: 600, fontSize: "0.9375rem" }}
               >
-                {authCopy.lawyerSignup.submit}
+                {loading ? "Creating account..." : authCopy.lawyerSignup.submit}
               </button>
+              {error && <p className="text-sm text-red-600 text-center">{error}</p>}
             </form>
 
             {/* Links */}

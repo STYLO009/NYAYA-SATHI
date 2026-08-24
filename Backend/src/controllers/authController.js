@@ -2,12 +2,7 @@ const User = require("../models/User.model");
 const Lawyer = require("../models/Lawyer.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
-// ======================================
-// SIGNUP CONTROLLER
-// ======================================
-
-// Creates a new user account
+const { uploadToCloudinary } = require("./upload.controller");
 
 exports.signup = async (req, res) => {
   try {
@@ -65,21 +60,8 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    // ======================================
-    // GET LOGIN DATA
-    // ======================================
-
     const { email, password } = req.body;
-
-    // ======================================
-    // FIND USER IN DATABASE
-    // ======================================
-
     const user = await User.findOne({ email });
-
-    // ======================================
-    // USER NOT FOUND
-    // ======================================
 
     if (!user) {
       return res.status(404).json({
@@ -89,96 +71,53 @@ exports.login = async (req, res) => {
       });
     }
 
-    // ======================================
-    // COMPARE PASSWORDS
-    // ======================================
-
     const isMatch = await bcrypt.compare(password, user.password);
-
-    // ======================================
-    // INVALID PASSWORD
-    // ======================================
 
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-
         message: "Invalid credentials",
       });
     }
-
-    // ======================================
-    // GENERATE JWT TOKEN
-    // ======================================
 
     const token = jwt.sign(
       {
         id: user._id,
       },
-
       process.env.JWT_SECRET,
-
       {
         expiresIn: "7d",
       },
     );
 
-    // ======================================
-    // STORE TOKEN IN COOKIE
-    // ======================================
-
     res.cookie("token", token, {
       httpOnly: true,
-
       secure: false,
-
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // ======================================
-    // SEND LOGIN RESPONSE
-    // ======================================
-
     res.status(200).json({
       success: true,
-
       message: "Login successful",
-
       token,
-
       user: {
         id: user._id,
-
         name: user.name,
-
         email: user.email,
       },
     });
   } catch (error) {
-    // ======================================
-    // SERVER ERROR
-    // ======================================
-
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
 };
 
-// ======================================
-// PROTECTED DASHBOARD ROUTE
-// ======================================
-
-// Only accessible with valid JWT token
-
 exports.dashboard = async (req, res) => {
   res.status(200).json({
     success: true,
-
     message: "Welcome to dashboard",
-
     user: req.user,
   });
 };
@@ -195,7 +134,7 @@ exports.logout = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      success: false, 
+      success: false,
       message: error.message,
     });
   }
@@ -203,12 +142,17 @@ exports.logout = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const allowedFields = ["name", "phoneNumber"];
+    const allowedFields = ["name", "phoneNumber", "profilePicture"];
     const updates = Object.fromEntries(
       allowedFields
         .filter((field) => req.body[field] !== undefined)
         .map((field) => [field, req.body[field]]),
     );
+
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer, "user_uploads");
+      updates.profilePicture = result.secure_url;
+    }
 
     const user = await User.findByIdAndUpdate(req.user.id, updates, {
       new: true,
@@ -230,6 +174,7 @@ exports.updateProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
+        profilePicture: user.profilePicture,
       },
     });
   } catch (error) {
@@ -249,7 +194,15 @@ exports.updateProfile = async (req, res) => {
 
 exports.lawyerSignup = async (req, res) => {
   try {
-    const { name, email, phone, password, primaryPracticeArea, yearsOfExperience, BarCouncilEnrollment } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      password,
+      primaryPracticeArea,
+      yearsOfExperience,
+      BarCouncilEnrollment,
+    } = req.body;
 
     const existingLawyer = await Lawyer.findOne({ email });
 
@@ -377,7 +330,7 @@ exports.lawyerDashboard = async (req, res) => {
 
     lawyer: req.lawyer,
   });
-}
+};
 
 exports.lawyerLogout = async (req, res) => {
   try {
@@ -411,6 +364,11 @@ exports.updateProfileLawyer = async (req, res) => {
         .map((field) => [field, req.body[field]]),
     );
 
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer, "lawyer_uploads");
+      updates.profilePicture = result.secure_url;
+    }
+
     const lawyer = await Lawyer.findByIdAndUpdate(req.lawyer.id, updates, {
       new: true,
       runValidators: true,
@@ -434,6 +392,7 @@ exports.updateProfileLawyer = async (req, res) => {
         primaryPracticeArea: lawyer.primaryPracticeArea,
         yearsOfExperience: lawyer.yearsOfExperience,
         BarCouncilEnrollment: lawyer.BarCouncilEnrollment,
+        profilePicture: lawyer.profilePicture,
       },
     });
   } catch (error) {

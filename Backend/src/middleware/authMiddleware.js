@@ -45,7 +45,9 @@ exports.isLoggedIn = async (req, res, next) => {
     // LOAD THE FULL USER PROFILE
     // ======================================
 
-    const user = await User.findById(decoded.id).select("name email googleId phoneNumber");
+    const user = await User.findById(decoded.id).select(
+      "name email googleId phoneNumber profilePicture",
+    );
 
     if (!user) {
       return res.status(401).json({
@@ -61,6 +63,7 @@ exports.isLoggedIn = async (req, res, next) => {
       email: user.email,
       googleId: user.googleId,
       phoneNumber: user.phoneNumber,
+      profilePicture: user.profilePicture,
     };
 
     // ======================================
@@ -87,8 +90,7 @@ exports.isLoggedInLawyer = async (req, res, next) => {
 
     if (req.headers.authorization) {
       token = req.headers.authorization.split(" ")[1];
-    }
-    else if (req.cookies.token) {
+    } else if (req.cookies.token) {
       token = req.cookies.token;
     }
     if (!token) {
@@ -99,7 +101,9 @@ exports.isLoggedInLawyer = async (req, res, next) => {
       });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const lawyer = await Lawyer.findById(decoded.id).select("name email phone primaryPracticeArea yearsOfExperience");
+    const lawyer = await Lawyer.findById(decoded.id).select(
+      "name email phone primaryPracticeArea yearsOfExperience BarCouncilEnrollment profilePicture",
+    );
 
     if (!lawyer) {
       return res.status(401).json({
@@ -116,6 +120,8 @@ exports.isLoggedInLawyer = async (req, res, next) => {
       phone: lawyer.phone,
       primaryPracticeArea: lawyer.primaryPracticeArea,
       yearsOfExperience: lawyer.yearsOfExperience,
+      BarCouncilEnrollment: lawyer.BarCouncilEnrollment,
+      profilePicture: lawyer.profilePicture,
     };
     next();
   } catch (error) {

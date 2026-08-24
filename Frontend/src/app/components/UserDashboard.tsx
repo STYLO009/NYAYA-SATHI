@@ -900,8 +900,25 @@ function SettingsSection({ user, onUserUpdated }: { user: StoredUser | null; onU
   const [pwdSaved, setPwdSaved] = useState(false);
   const [name, setName] = useState(user?.name ?? "");
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber ?? "");
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState(user?.profilePicture ?? "");
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState("");
+
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileMessage("Profile picture must be smaller than 5 MB");
+      event.target.value = "";
+      return;
+    }
+
+    setProfilePicture(file);
+    setProfilePreview(URL.createObjectURL(file));
+    setProfileMessage("");
+  };
 
   const handleProfileSave = async () => {
     if (!name.trim() || !phoneNumber.trim()) return;
@@ -910,21 +927,27 @@ function SettingsSection({ user, onUserUpdated }: { user: StoredUser | null; onU
     setProfileMessage("");
 
     try {
-      await apiFetch("/auth/update-profile", {
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("phoneNumber", phoneNumber.trim());
+      if (profilePicture) formData.append("profilePicture", profilePicture);
+
+      const data = await apiFetch("/auth/update-profile", {
         method: "PUT",
-        body: JSON.stringify({
-          name: name.trim(),
-          phoneNumber: phoneNumber.trim(),
-        }),
+        body: formData,
       });
 
-      const updatedUser = {
+      const updatedUser = data.user ?? {
+        ...user,
         name: name.trim(),
         email: user?.email ?? "",
         phoneNumber: phoneNumber.trim(),
+        profilePicture: profilePreview,
       };
       setUser(updatedUser);
       onUserUpdated(updatedUser);
+      setProfilePicture(null);
+      setProfilePreview(updatedUser.profilePicture ?? "");
       setProfileMessage("Profile updated successfully");
     } catch (error: any) {
       setProfileMessage(error.message || "Unable to update profile");
@@ -950,15 +973,24 @@ function SettingsSection({ user, onUserUpdated }: { user: StoredUser | null; onU
         <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6" style={{ boxShadow: "0 4px 16px rgba(15,23,42,0.07)" }}>
           <p className="text-sm text-[#0F172A] mb-4" style={{ fontWeight: 700 }}>Profile Information</p>
           <div className="flex items-center gap-4 mb-5">
-            <div className="w-14 h-14 bg-[#0F172A] rounded-2xl flex items-center justify-center">
-              <span className="text-white" style={{ fontWeight: 700, fontSize: "1.25rem" }}>
-                {(user?.name?.trim()?.[0] ?? user?.email?.trim()?.[0] ?? "U").toUpperCase()}
-                {(user?.name?.split(/\s+/).filter(Boolean).slice(1)[0]?.[0] ?? "").toUpperCase()}
-              </span>
+            <div className="w-14 h-14 bg-[#0F172A] rounded-2xl flex items-center justify-center overflow-hidden">
+              {profilePreview ? (
+                <img src={profilePreview} alt="Profile preview" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white" style={{ fontWeight: 700, fontSize: "1.25rem" }}>
+                  {(user?.name?.trim()?.[0] ?? user?.email?.trim()?.[0] ?? "U").toUpperCase()}
+                  {(user?.name?.split(/\s+/).filter(Boolean).slice(1)[0]?.[0] ?? "").toUpperCase()}
+                </span>
+              )}
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-[#0F172A] text-sm" style={{ fontWeight: 600 }}>{user?.name ?? "User"}</p>
               <p className="text-[#9CA3AF] text-xs">{user?.email ?? ""}</p>
+              <label className="inline-flex items-center gap-1.5 mt-2 text-xs text-[#0F172A] cursor-pointer hover:text-[#1E3A5F]" style={{ fontWeight: 600 }}>
+                <Upload className="w-3.5 h-3.5" />
+                {profilePicture ? "Change picture" : "Upload picture"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleProfilePictureChange} />
+              </label>
             </div>
           </div>
           <div className="space-y-3">
@@ -1548,6 +1580,7 @@ export function UserDashboard() {
             name: authUser.name ?? authUser.email ?? "User",
             email: authUser.email ?? "",
             phoneNumber: authUser.phoneNumber ?? "",
+            profilePicture: authUser.profilePicture ?? "",
           };
           setUser(nextUser);
           setUserState(nextUser);
@@ -1649,8 +1682,12 @@ export function UserDashboard() {
               <Bell className="w-4 h-4 text-[#374151]" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
             </button>
-            <div className="w-9 h-9 bg-[#0F172A] rounded-xl flex items-center justify-center">
-              <span className="text-white text-xs" style={{ fontWeight: 700 }}>{getInitials(user?.name, user?.email)}</span>
+            <div className="w-9 h-9 bg-[#0F172A] rounded-xl flex items-center justify-center overflow-hidden">
+              {user?.profilePicture ? (
+                <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white text-xs" style={{ fontWeight: 700 }}>{getInitials(user?.name, user?.email)}</span>
+              )}
             </div>
           </div>
         </div>

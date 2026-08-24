@@ -18,6 +18,7 @@ const {
   isLoggedIn,
   isLoggedInLawyer,
 } = require("../middleware/authMiddleware");
+const upload = require("../config/multer");
 
 // User Routes
 router.post("/signup", signup);
@@ -36,54 +37,43 @@ router.get(
     failureRedirect: "/login",
   }),
   (req, res) => {
-    // ======================================
-    // IMPORT JWT
-    // ======================================
-
     const jwt = require("jsonwebtoken");
-
-    // ======================================
-    // CREATE JWT TOKEN
-    // ======================================
-
     const token = jwt.sign(
       {
         id: req.user._id,
       },
-
       process.env.JWT_SECRET,
-
       {
         expiresIn: "7d",
       },
     );
 
-    // ======================================
-    // STORE JWT IN COOKIE
-    // ======================================
-
     res.cookie("token", token, {
       httpOnly: true,
-
       secure: false,
-
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-
-    // ======================================
-    // REDIRECT USER
-    // ======================================
 
     res.redirect(`http://localhost:5173/dashboard?token=${token}`);
   },
 );
-router.put("/update-profile", isLoggedIn, updateProfile);
+router.put(
+  "/update-profile",
+  isLoggedIn,
+  upload.single("profilePicture"),
+  updateProfile,
+);
 
 // Lawyer Routes
 router.post("/signup-lawyer", lawyerSignup);
 router.post("/login-lawyer", lawyerLogin);
 router.get("/dashboard-lawyer", isLoggedInLawyer, lawyerDashboard);
 router.get("/logout-lawyer", lawyerLogout);
-router.put("/update-profile-lawyer", isLoggedInLawyer, updateProfileLawyer);
+router.put(
+  "/update-profile-lawyer",
+  isLoggedInLawyer,
+  upload.single("profilePicture"),
+  updateProfileLawyer,
+);
 
 module.exports = router;
