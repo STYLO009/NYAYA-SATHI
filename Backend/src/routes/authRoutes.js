@@ -1,31 +1,41 @@
 const express = require("express");
-
 const router = express.Router();
-
 const passport = require("passport");
-
 const {
   signup,
   login,
   dashboard,
   logout,
   updateProfile,
+  lawyerSignup,
+  lawyerLogin,
+  lawyerDashboard,
+  lawyerLogout,
+  updateProfileLawyer,
 } = require("../controllers/authController");
 
-const { isLoggedIn } = require("../middleware/authMiddleware");
+const {
+  isLoggedIn,
+  isLoggedInLawyer,
+} = require("../middleware/authMiddleware");
 
+// User Routes
 router.post("/signup", signup);
-
 router.post("/login", login);
 router.get("/dashboard", isLoggedIn, dashboard);
 router.get("/logout", logout);
-router.get("/google", passport.authenticate("google", {
+router.get(
+  "/google",
+  passport.authenticate("google", {
     scope: ["profile", "email"],
   }),
 );
-router.get("/google/callback",passport.authenticate("google", {
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
     failureRedirect: "/login",
-  }), (req, res) => {
+  }),
+  (req, res) => {
     // ======================================
     // IMPORT JWT
     // ======================================
@@ -68,5 +78,12 @@ router.get("/google/callback",passport.authenticate("google", {
   },
 );
 router.put("/update-profile", isLoggedIn, updateProfile);
+
+// Lawyer Routes
+router.post("/signup-lawyer", lawyerSignup);
+router.post("/login-lawyer", lawyerLogin);
+router.get("/dashboard-lawyer", isLoggedInLawyer, lawyerDashboard);
+router.get("/logout-lawyer", lawyerLogout);
+router.put("/update-profile-lawyer", isLoggedInLawyer, updateProfileLawyer);
 
 module.exports = router;

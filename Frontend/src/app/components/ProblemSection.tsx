@@ -3,7 +3,12 @@ import { useInView } from "motion/react";
 import { useRef } from "react";
 import { problemCards } from "../content/siteContent";
 
-function ProblemCard({ problem, index }) {
+interface ProblemCardProps {
+  problem: (typeof problemCards)[number];
+  index: number;
+}
+
+function ProblemCard({ problem, index }: ProblemCardProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const Icon = problem.icon;

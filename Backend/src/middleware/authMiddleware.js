@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
+const Lawyer = require("../models/Lawyer.model");
 
 // ======================================
 // AUTH MIDDLEWARE
@@ -72,6 +73,52 @@ exports.isLoggedIn = async (req, res, next) => {
     // INVALID TOKEN
     // ======================================
 
+    return res.status(401).json({
+      success: false,
+
+      message: "Invalid token",
+    });
+  }
+};
+
+exports.isLoggedInLawyer = async (req, res, next) => {
+  try {
+    let token;
+
+    if (req.headers.authorization) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+    else if (req.cookies.token) {
+      token = req.cookies.token;
+    }
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+
+        message: "No token found",
+      });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const lawyer = await Lawyer.findById(decoded.id).select("name email phone primaryPracticeArea yearsOfExperience");
+
+    if (!lawyer) {
+      return res.status(401).json({
+        success: false,
+
+        message: "Lawyer not found",
+      });
+    }
+
+    req.lawyer = {
+      id: lawyer._id,
+      name: lawyer.name,
+      email: lawyer.email,
+      phone: lawyer.phone,
+      primaryPracticeArea: lawyer.primaryPracticeArea,
+      yearsOfExperience: lawyer.yearsOfExperience,
+    };
+    next();
+  } catch (error) {
     return res.status(401).json({
       success: false,
 
